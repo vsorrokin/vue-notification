@@ -347,7 +347,7 @@ var Component = {
   computed: {
     errorTypeIfExists: function errorTypeIfExists() {
       var activeItems = this.list.filter(function (item) {
-        return item.state != 2;
+        return item.state != STATE.DESTROYED;
       });
       if (!activeItems.length) return null;
       var isErrorExist = activeItems.find(function (it) {
@@ -677,7 +677,7 @@ exports = module.exports = __webpack_require__(11)();
 
 
 // module
-exports.push([module.i, ".notifications{display:block;position:fixed;z-index:5000}.notification-wrapper{display:block;overflow:hidden;width:100%;margin:0;padding:0}.notification{display:block;box-sizing:border-box;background:#fff;text-align:left}.notification-title{font-weight:600}.vue-notification{font-size:12px;padding:10px;margin:0 5px 5px;color:#fff;background:#44a4fc;border-left:5px solid #187fe7}.vue-notification.warn{background:#ffb648;border-left-color:#f48a06}.vue-notification.error{background:#e54d42;border-left-color:#b82e24}.vue-notification.success{background:#68cd86;border-left-color:#42a85f}.vn-fade-enter-active,.vn-fade-leave-active,.vn-fade-move{transition:all .5s}.vn-fade-enter,.vn-fade-leave-to{opacity:0}", ""]);
+exports.push([module.i, ".notifications-global-wrapper .notifications-overlay{visibility:hidden;opacity:0;position:fixed;left:0;top:0;width:100%;height:100%;background-color:rgba(39,39,39,.6);transition-timing-function:ease;transition-duration:.3s;transition-property:visibility,opacity;z-index:1000}.notifications-global-wrapper.error .notifications-overlay{visibility:visible;opacity:1}.notifications{display:block;position:fixed;z-index:5000}.notification-wrapper{display:block;overflow:hidden;width:100%;margin:0;padding:0}.notification{display:block;box-sizing:border-box;background:#fff;text-align:left}.notification-title{font-weight:600}.vue-notification{font-size:12px;padding:10px;margin:0 5px 5px;color:#fff;background:#44a4fc;border-left:5px solid #187fe7}.vue-notification.warn{background:#ffb648;border-left-color:#f48a06}.vue-notification.error{background:#e54d42;border-left-color:#b82e24}.vue-notification.success{background:#68cd86;border-left-color:#42a85f}.vn-fade-enter-active,.vn-fade-leave-active,.vn-fade-move{transition:all .5s}.vn-fade-enter,.vn-fade-leave-to{opacity:0}", ""]);
 
 // exports
 
@@ -802,7 +802,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, [_c('div', {
     staticClass: "notifications-overlay",
     on: {
-      "click": _vm.clean
+      "click": function($event) {
+        _vm.list = []
+      }
     }
   }), _vm._v(" "), _c('div', {
     staticClass: "notifications",

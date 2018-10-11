@@ -1,6 +1,6 @@
 <template>
 <div class="notifications-global-wrapper" :class="errorTypeIfExists">
-  <div @click="clean" class="notifications-overlay"></div>
+  <div @click="list = []" class="notifications-overlay"></div>
   <div
     class="notifications"
     :style="styles"
@@ -153,7 +153,7 @@ const Component = {
   },
   computed: {
     errorTypeIfExists () {
-      const activeItems = this.list.filter(item => item.state != 2)
+      const activeItems = this.list.filter(item => item.state != STATE.DESTROYED)
       if (!activeItems.length) return null;
       const isErrorExist = activeItems.find(it => it.type === 'error');
       if (isErrorExist) return 'error';
@@ -332,6 +332,29 @@ const Component = {
 export default Component
 </script>
 <style>
+.notifications-global-wrapper .notifications-overlay {
+  visibility: hidden;
+  opacity: 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(39,39,39,0.6);
+  -webkit-transition-timing-function: ease;
+  transition-timing-function: ease;
+  -webkit-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -webkit-transition-property: visibility, opacity;
+  transition-property: visibility, opacity;
+  z-index: 1000;
+}
+
+.notifications-global-wrapper.error .notifications-overlay {
+  visibility: visible;
+  opacity: 1;
+}
+
 .notifications {
   display: block;
   position: fixed;
