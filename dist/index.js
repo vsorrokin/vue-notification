@@ -346,8 +346,11 @@ var Component = {
 
   computed: {
     lastType: function lastType() {
-      if (!this.list.length) return null;
-      return this.list[this.list.length - 1].type;
+      var activeItems = this.list.filter(function (item) {
+        return item.state != 2;
+      });
+      if (!activeItems.length) return null;
+      return activeItems[activeItems.length - 1].type;
     },
     actualWidth: function actualWidth() {
       return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__parser__["a" /* default */])(this.width);
@@ -790,8 +793,12 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
+    staticClass: "notifications-global-wrapper",
+    class: _vm.lastType
+  }, [_c('div', {
+    staticClass: "notifications-overlay"
+  }), _vm._v(" "), _c('div', {
     staticClass: "notifications",
-    class: _vm.lastType,
     style: (_vm.styles)
   }, [_c(_vm.componentName, {
     tag: "component",
@@ -832,7 +839,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       item: item,
       close: function () { return _vm.destroy(item); }
     })], 2) : _vm._e()
-  }))], 1)
+  }))], 1)])
 },staticRenderFns: []}
 
 /***/ }),

@@ -1,50 +1,52 @@
 <template>
-<div
-  class="notifications"
-  :style="styles"
-  :class="lastType"
->
-  <component
-    :is="componentName"
-    :name="animationName"
-    @enter="enter"
-    @leave="leave"
-    @after-leave="clean"
+<div class="notifications-global-wrapper" :class="lastType">
+  <div class="notifications-overlay"></div>
+  <div
+    class="notifications"
+    :style="styles"
   >
-    <div
-      v-for="item in list"
-      v-if="item.state != 2"
-      class="notification-wrapper"
-      :style="notifyWrapperStyle(item)"
-      :key="item.id"
-      :data-id="item.id"
+    <component
+      :is="componentName"
+      :name="animationName"
+      @enter="enter"
+      @leave="leave"
+      @after-leave="clean"
     >
-      <slot
-        name="body"
-        :class="[classes, item.type]"
-        :item="item"
-        :close="() => destroy(item)"
+      <div
+        v-for="item in list"
+        v-if="item.state != 2"
+        class="notification-wrapper"
+        :style="notifyWrapperStyle(item)"
+        :key="item.id"
+        :data-id="item.id"
       >
-        <!-- Default slot template -->
-        <div
-          :class="notifyClass(item)"
-          @click="destroy(item)"
+        <slot
+          name="body"
+          :class="[classes, item.type]"
+          :item="item"
+          :close="() => destroy(item)"
         >
+          <!-- Default slot template -->
           <div
-            v-if="item.title"
-            class="notification-title"
-            v-html="item.title"
+            :class="notifyClass(item)"
+            @click="destroy(item)"
           >
+            <div
+              v-if="item.title"
+              class="notification-title"
+              v-html="item.title"
+            >
+            </div>
+            <div
+              class="notification-content"
+              v-html="item.text"
+            >
+            </div>
           </div>
-          <div
-            class="notification-content"
-            v-html="item.text"
-          >
-          </div>
-        </div>
-      </slot>
-    </div>
-  </component>
+        </slot>
+      </div>
+    </component>
+  </div>
 </div>
 </template>
 <script>
@@ -151,8 +153,9 @@ const Component = {
   },
   computed: {
     lastType () {
-      if (!this.list.length) return null;
-      return this.list[this.list.length - 1].type;
+      const activeItems = this.list.filter(item => item.state != 2)
+      if (!activeItems.length) return null;
+      return activeItems[activeItems.length - 1].type;
     },
 
     actualWidth () {
