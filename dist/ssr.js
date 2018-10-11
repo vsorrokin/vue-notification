@@ -345,12 +345,16 @@ var Component = {
   },
 
   computed: {
-    lastType: function lastType() {
+    errorTypeIfExists: function errorTypeIfExists() {
       var activeItems = this.list.filter(function (item) {
         return item.state != 2;
       });
       if (!activeItems.length) return null;
-      return activeItems[activeItems.length - 1].type;
+      var isErrorExist = activeItems.find(function (it) {
+        return it.type === 'error';
+      });
+      if (isErrorExist) return 'error';
+      return null;
     },
     actualWidth: function actualWidth() {
       return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__parser__["a" /* default */])(this.width);
@@ -794,9 +798,12 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
     staticClass: "notifications-global-wrapper",
-    class: _vm.lastType
+    class: _vm.errorTypeIfExists
   }, [_c('div', {
-    staticClass: "notifications-overlay"
+    staticClass: "notifications-overlay",
+    on: {
+      "click": _vm.clean
+    }
   }), _vm._v(" "), _c('div', {
     staticClass: "notifications",
     style: (_vm.styles)

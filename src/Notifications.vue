@@ -1,6 +1,6 @@
 <template>
-<div class="notifications-global-wrapper" :class="lastType">
-  <div class="notifications-overlay"></div>
+<div class="notifications-global-wrapper" :class="errorTypeIfExists">
+  <div @click="clean" class="notifications-overlay"></div>
   <div
     class="notifications"
     :style="styles"
@@ -152,10 +152,12 @@ const Component = {
     events.$on('add', this.addItem);
   },
   computed: {
-    lastType () {
+    errorTypeIfExists () {
       const activeItems = this.list.filter(item => item.state != 2)
       if (!activeItems.length) return null;
-      return activeItems[activeItems.length - 1].type;
+      const isErrorExist = activeItems.find(it => it.type === 'error');
+      if (isErrorExist) return 'error';
+      return null;
     },
 
     actualWidth () {
