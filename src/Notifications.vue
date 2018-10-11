@@ -2,7 +2,7 @@
 <div
   class="notifications"
   :style="styles"
-  :class="[list[0].type]"
+  :class="[list.length ? list[0].type : '']"
 >
   <component
     :is="componentName"
