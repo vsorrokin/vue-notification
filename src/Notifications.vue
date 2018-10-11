@@ -2,7 +2,7 @@
 <div
   class="notifications"
   :style="styles"
-  :class="[list.length ? list[0].type : '']"
+  :class="lastType"
 >
   <component
     :is="componentName"
@@ -150,6 +150,11 @@ const Component = {
     events.$on('add', this.addItem);
   },
   computed: {
+    lastType () {
+      if (!this.list.length) return null;
+      return this.list[this.list.length - 1].type;
+    },
+
     actualWidth () {
       return parseNumericValue(this.width)
     },

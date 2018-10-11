@@ -345,6 +345,10 @@ var Component = {
   },
 
   computed: {
+    lastType: function lastType() {
+      if (!this.list.length) return null;
+      return this.list[this.list.length - 1].type;
+    },
     actualWidth: function actualWidth() {
       return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__parser__["a" /* default */])(this.width);
     },
@@ -787,7 +791,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
     staticClass: "notifications",
-    class: [_vm.list.length ? _vm.list[0].type : ''],
+    class: _vm.lastType,
     style: (_vm.styles)
   }, [_c(_vm.componentName, {
     tag: "component",
