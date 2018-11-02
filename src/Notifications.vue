@@ -1,6 +1,6 @@
 <template>
-<div class="notifications-global-wrapper" :class="errorTypeIfExists">
-  <div @click="list = []" class="notifications-overlay"></div>
+<div class="notifications-global-wrapper" :class="showOverlay ? 'with-overlay' : ''">
+  <div @click="overlayClick" class="notifications-overlay"></div>
   <div
     class="notifications"
     :style="styles"
@@ -29,7 +29,7 @@
           <!-- Default slot template -->
           <div
             :class="notifyClass(item)"
-            @click="destroy(item)"
+            @click="destroy(item, $event)"
           >
             <div
               v-if="item.title"
@@ -152,12 +152,10 @@ const Component = {
     events.$on('add', this.addItem);
   },
   computed: {
-    errorTypeIfExists () {
+    showOverlay () {
       const activeItems = this.list.filter(item => item.state != STATE.DESTROYED)
       if (!activeItems.length) return null;
-      const isErrorExist = activeItems.find(it => it.type === 'error');
-      if (isErrorExist) return 'error';
-      return null;
+      return !!activeItems.find(it => it.overlay);
     },
 
     actualWidth () {
@@ -204,6 +202,18 @@ const Component = {
     }
   },
   methods: {
+    overlayClick () {
+      const activeItems = this.list.filter(item => item.state != STATE.DESTROYED)
+      if (!activeItems.length) {
+        this.list = [];
+        return;
+      }
+
+      if (!activeItems.find(it => it.closeByAPIOnly)) {
+        this.list = [];
+      }
+    },
+
     addItem (event) {
       event.group = event.group || ''
 
@@ -224,7 +234,7 @@ const Component = {
         ? event.speed
         : this.speed
 
-      let { title, text, type, data } = event
+      let { title, text, type, data, closeByAPIOnly, overlay, notification } = event
 
       const item = {
         id: Id(),
@@ -234,7 +244,9 @@ const Component = {
         state: STATE.IDLE,
         speed,
         length: duration + 2 * speed,
-        data
+        data,
+        closeByAPIOnly,
+        overlay
       }
 
       if (duration >= 0) {
@@ -266,6 +278,24 @@ const Component = {
       if (indexToDestroy !== -1) {
         this.destroy(this.active[indexToDestroy])
       }
+
+      notification.control = this.getItemControlObject(item);
+    },
+
+    getItemControlObject (item) {
+      return {
+        destroy: () => {
+          this.destroy(item)
+        },
+
+        updateData: (data) => {
+          const itemIndex = this.list.findIndex(it => it.id === item.id);
+          const draftItem = this.list[itemIndex];
+          Object.assign(draftItem, data);
+
+          this.$set(this.list, itemIndex, draftItem);
+        }
+      };
     },
 
     notifyClass (item) {
@@ -284,7 +314,8 @@ const Component = {
           }
     },
 
-    destroy (item) {
+    destroy (item, event) {
+      if (item.closeByAPIOnly && event) return;
       clearTimeout(item.timer)
       item.state = STATE.DESTROYED
 
@@ -350,7 +381,7 @@ export default Component
   z-index: 1000;
 }
 
-.notifications-global-wrapper.error .notifications-overlay {
+.notifications-global-wrapper.with-overlay .notifications-overlay {
   visibility: visible;
   opacity: 1;
 }

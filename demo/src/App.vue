@@ -7,6 +7,9 @@
       <a href="https://github.com/euvl/vue-notification/"
          target="issues">Github</a>
     </h2>
+
+    <notifications group="controlled"
+                   position="bottom left" />
     <!-- CSS animation example -->
     <notifications group="foo-css"
                    position="bottom left"
@@ -113,6 +116,10 @@
       </div>
       <div style="padding-top: 20px">
         <p>Custom style:</p>
+        <button @click="show('controlled')">
+          show controlled
+        </button>
+        <p></p>
         <button @click="show('custom-style')">
           top center (max=3)
         </button>
@@ -155,6 +162,26 @@ export default {
   },
   methods: {
     show (group, type = '') {
+      if (group === 'controlled') {
+        const notification = {};
+        this.$notify({
+          group: 'controlled',
+          title: 'Loading',
+          text: 'Wait',
+          duration: -1,
+          closeByAPIOnly: true,
+          overlay: true,
+          notification
+        });
+        
+        setTimeout(() => {
+          notification.control.updateData({
+            title: 'New title',
+            text: 'New text'
+          });
+        }, 1000);
+        return;
+      }
       const text = `
         This is notification text!
         <br>

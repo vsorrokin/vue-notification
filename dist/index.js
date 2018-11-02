@@ -345,16 +345,14 @@ var Component = {
   },
 
   computed: {
-    errorTypeIfExists: function errorTypeIfExists() {
+    showOverlay: function showOverlay() {
       var activeItems = this.list.filter(function (item) {
         return item.state != STATE.DESTROYED;
       });
       if (!activeItems.length) return null;
-      var isErrorExist = activeItems.find(function (it) {
-        return it.type === 'error';
+      return !!activeItems.find(function (it) {
+        return it.overlay;
       });
-      if (isErrorExist) return 'error';
-      return null;
     },
     actualWidth: function actualWidth() {
       return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__parser__["a" /* default */])(this.width);
@@ -395,6 +393,21 @@ var Component = {
     }
   },
   methods: {
+    overlayClick: function overlayClick() {
+      var activeItems = this.list.filter(function (item) {
+        return item.state != STATE.DESTROYED;
+      });
+      if (!activeItems.length) {
+        this.list = [];
+        return;
+      }
+
+      if (!activeItems.find(function (it) {
+        return it.closeByAPIOnly;
+      })) {
+        this.list = [];
+      }
+    },
     addItem: function addItem(event) {
       var _this = this;
 
@@ -416,7 +429,10 @@ var Component = {
       var title = event.title,
           text = event.text,
           type = event.type,
-          data = event.data;
+          data = event.data,
+          closeByAPIOnly = event.closeByAPIOnly,
+          overlay = event.overlay,
+          notification = event.notification;
 
 
       var item = {
@@ -427,7 +443,9 @@ var Component = {
         state: STATE.IDLE,
         speed: speed,
         length: duration + 2 * speed,
-        data: data
+        data: data,
+        closeByAPIOnly: closeByAPIOnly,
+        overlay: overlay
       };
 
       if (duration >= 0) {
@@ -457,6 +475,27 @@ var Component = {
       if (indexToDestroy !== -1) {
         this.destroy(this.active[indexToDestroy]);
       }
+
+      notification.control = this.getItemControlObject(item);
+    },
+    getItemControlObject: function getItemControlObject(item) {
+      var _this2 = this;
+
+      return {
+        destroy: function destroy() {
+          _this2.destroy(item);
+        },
+
+        updateData: function updateData(data) {
+          var itemIndex = _this2.list.findIndex(function (it) {
+            return it.id === item.id;
+          });
+          var draftItem = _this2.list[itemIndex];
+          Object.assign(draftItem, data);
+
+          _this2.$set(_this2.list, itemIndex, draftItem);
+        }
+      };
     },
     notifyClass: function notifyClass(item) {
       return ['notification', this.classes, item.type];
@@ -466,7 +505,8 @@ var Component = {
         transition: 'all ' + item.speed + 'ms'
       };
     },
-    destroy: function destroy(item) {
+    destroy: function destroy(item, event) {
+      if (item.closeByAPIOnly && event) return;
       clearTimeout(item.timer);
       item.state = STATE.DESTROYED;
 
@@ -677,7 +717,7 @@ exports = module.exports = __webpack_require__(11)();
 
 
 // module
-exports.push([module.i, ".notifications-global-wrapper .notifications-overlay{visibility:hidden;opacity:0;position:fixed;left:0;top:0;width:100%;height:100%;background-color:rgba(39,39,39,.6);transition-timing-function:ease;transition-duration:.3s;transition-property:visibility,opacity;z-index:1000}.notifications-global-wrapper.error .notifications-overlay{visibility:visible;opacity:1}.notifications{display:block;position:fixed;z-index:5000}.notification-wrapper{display:block;overflow:hidden;width:100%;margin:0;padding:0}.notification{display:block;box-sizing:border-box;background:#fff;text-align:left}.notification-title{font-weight:600}.vue-notification{font-size:12px;padding:10px;margin:0 5px 5px;color:#fff;background:#44a4fc;border-left:5px solid #187fe7}.vue-notification.warn{background:#ffb648;border-left-color:#f48a06}.vue-notification.error{background:#e54d42;border-left-color:#b82e24}.vue-notification.success{background:#68cd86;border-left-color:#42a85f}.vn-fade-enter-active,.vn-fade-leave-active,.vn-fade-move{transition:all .5s}.vn-fade-enter,.vn-fade-leave-to{opacity:0}", ""]);
+exports.push([module.i, ".notifications-global-wrapper .notifications-overlay{visibility:hidden;opacity:0;position:fixed;left:0;top:0;width:100%;height:100%;background-color:rgba(39,39,39,.6);transition-timing-function:ease;transition-duration:.3s;transition-property:visibility,opacity;z-index:1000}.notifications-global-wrapper.with-overlay .notifications-overlay{visibility:visible;opacity:1}.notifications{display:block;position:fixed;z-index:5000}.notification-wrapper{display:block;overflow:hidden;width:100%;margin:0;padding:0}.notification{display:block;box-sizing:border-box;background:#fff;text-align:left}.notification-title{font-weight:600}.vue-notification{font-size:12px;padding:10px;margin:0 5px 5px;color:#fff;background:#44a4fc;border-left:5px solid #187fe7}.vue-notification.warn{background:#ffb648;border-left-color:#f48a06}.vue-notification.error{background:#e54d42;border-left-color:#b82e24}.vue-notification.success{background:#68cd86;border-left-color:#42a85f}.vn-fade-enter-active,.vn-fade-leave-active,.vn-fade-move{transition:all .5s}.vn-fade-enter,.vn-fade-leave-to{opacity:0}", ""]);
 
 // exports
 
@@ -798,13 +838,11 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
     staticClass: "notifications-global-wrapper",
-    class: _vm.errorTypeIfExists
+    class: _vm.showOverlay ? 'with-overlay' : ''
   }, [_c('div', {
     staticClass: "notifications-overlay",
     on: {
-      "click": function($event) {
-        _vm.list = []
-      }
+      "click": _vm.overlayClick
     }
   }), _vm._v(" "), _c('div', {
     staticClass: "notifications",
@@ -831,7 +869,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       class: _vm.notifyClass(item),
       on: {
         "click": function($event) {
-          _vm.destroy(item)
+          _vm.destroy(item, $event)
         }
       }
     }, [(item.title) ? _c('div', {
