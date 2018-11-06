@@ -485,7 +485,12 @@ var Component = {
         destroy: function destroy() {
           _this2.destroy(item);
         },
-
+        isDestroyed: function isDestroyed() {
+          var foundItem = _this2.list.find(function (it) {
+            return it.id === item.id;
+          });
+          return !foundItem || foundItem.state === STATE.DESTROYED;
+        },
         updateData: function updateData(data) {
           var itemIndex = _this2.list.findIndex(function (it) {
             return it.id === item.id;

@@ -287,7 +287,10 @@ const Component = {
         destroy: () => {
           this.destroy(item)
         },
-
+        isDestroyed: () => {
+          const foundItem = this.list.find(it => it.id === item.id);
+          return !foundItem || foundItem.state === STATE.DESTROYED;
+        },
         updateData: (data) => {
           const itemIndex = this.list.findIndex(it => it.id === item.id);
           const draftItem = this.list[itemIndex];
